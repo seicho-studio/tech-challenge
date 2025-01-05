@@ -43,20 +43,34 @@ const Character = mongoose.model('Character', CharacterSchema)
 
 const mongoUri = process.env.DATABASE_URI
 
+const getCharactersData = async () => {
+  let url = 'https://rickandmortyapi.com/api/character'
+
+  let charactersData = []
+  while (url) {
+    const characters = await axios.get(url)
+    charactersData = charactersData.concat(characters.data.results.map(character => ({
+      name: character.name,
+      status: character.status,
+      species: character.species,
+      type: character.type,
+      gender: character.gender,
+      origin: character.origin.name,
+      location: character.location.name
+    })))
+
+    url = characters.data.info.next
+  }
+
+  return charactersData
+}
+
 const main = async () => {
   await mongoose.connect(mongoUri)
 
-  const characters = await axios.get('https://rickandmortyapi.com/api/character')
-  const charactersData = characters.data.results.map(character => ({
-    name: character.name,
-    status: character.status,
-    species: character.species,
-    type: character.type,
-    gender: character.gender,
-    origin: character.origin.name,
-    location: character.location.name
-  }))
+  await Character.deleteMany({})
 
+  const charactersData = await getCharactersData()
   await Character.insertMany(charactersData)
 
   await mongoose.disconnect()
