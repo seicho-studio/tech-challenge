@@ -29,6 +29,10 @@ const CharacterSchema = new mongoose.Schema({
     type: String,
     required: true
   },
+  image: {
+    type: String,
+    required: false
+  },
   location: {
     type: String,
     required: true
@@ -56,7 +60,8 @@ const getCharactersData = async () => {
       type: character.type,
       gender: character.gender,
       origin: character.origin.name,
-      location: character.location.name
+      location: character.location.name,
+      image: character.image
     })))
 
     url = characters.data.info.next
